@@ -41,27 +41,36 @@ class DashboardService {
   /// - Day boundary crosses (midnight in Asia/Dhaka)
   Stream<DashboardData> watchDashboard() {
     // Time stream: emit immediately, then every 60 seconds
-    final nowUtc$ = Stream<DateTime>.value(nowUtc())
-        .concatWith([
+    //
+    // IMPORTANT: this stream is listened to multiple times downstream (directly and via derived streams),
+    // so it MUST be broadcast/shared. Otherwise we'll crash with:
+    // "Bad state: Stream has already been listened to."
+    final nowUtc$ = Stream<DateTime>.value(nowUtc()).concatWith([
       Stream<DateTime>.periodic(
         const Duration(minutes: 1),
         (_) => nowUtc(),
       ),
-    ]);
+    ]).publishReplay(maxSize: 1).refCount();
 
     // Derive local date (midnight in Asia/Dhaka) from UTC time
-    final localDate$ = nowUtc$.map((utc) => utcToLocalMidnight(utc, timezone: _timezone));
+    //
+    // Also shared: it is used as input to multiple day-scoped streams + combined output.
+    final localDate$ = nowUtc$
+        .map((utc) => utcToLocalMidnight(utc, timezone: _timezone))
+        .distinct()
+        .publishReplay(maxSize: 1)
+        .refCount();
 
     // Day-scoped streams: rebind when localDate changes
-    final todaysPrayers$ = localDate$.distinct().switchMap((localDate) {
+    final todaysPrayers$ = localDate$.switchMap((localDate) {
       return _prayerRepository.watchTodayPrayers(localDate);
     });
 
-    final todayReadingSessions$ = localDate$.distinct().switchMap((localDate) {
+    final todayReadingSessions$ = localDate$.switchMap((localDate) {
       return _readingRepository.watchTodayReadingSessions(localDate);
     });
 
-    final todayXp$ = localDate$.distinct().switchMap((localDate) {
+    final todayXp$ = localDate$.switchMap((localDate) {
       return _gamificationRepository.watchTodayXp(localDate);
     });
 
