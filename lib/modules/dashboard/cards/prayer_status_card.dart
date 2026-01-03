@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/converters/enum_converters.dart';
 import '../../../../core/theme/theme_extensions.dart';
+import 'dashboard_card_animations.dart';
 
 /// Prayer status card - shows 5 prayer statuses (Fajr, Dhuhr, Asr, Maghrib, Isha)
 class PrayerStatusCard extends StatelessWidget {
@@ -61,6 +62,12 @@ class PrayerStatusCard extends StatelessWidget {
     }
   }
 
+  int _getCompletedCount(List<PrayerEntry> prayers) {
+    return prayers.where((p) =>
+        p.status == PrayerStatus.prayed ||
+        p.status == PrayerStatus.prayedLate).length;
+  }
+
   @override
   Widget build(BuildContext context) {
     final tokens = Theme.of(context).extension<PowerHouseCardTokens>();
@@ -94,11 +101,22 @@ class PrayerStatusCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Prayers',
-                style: textTheme.titleMedium?.copyWith(
-                  color: colorScheme.onSurface,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Prayers',
+                    style: textTheme.titleMedium?.copyWith(
+                      color: colorScheme.onSurface,
+                    ),
+                  ),
+                  _buildProgressRing(
+                    context: context,
+                    completed: _getCompletedCount(todaysPrayers),
+                    colorScheme: colorScheme,
+                    textTheme: textTheme,
+                  ),
+                ],
               ),
               const SizedBox(height: 12),
               Expanded(
@@ -113,21 +131,13 @@ class PrayerStatusCard extends StatelessWidget {
                     final color = _getStatusColor(status, colorScheme);
                     final name = _getPrayerName(prayerType);
 
-                    return Row(
-                      children: [
-                        Icon(
-                          icon,
-                          color: color,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          name,
-                          style: textTheme.bodyMedium?.copyWith(
-                            color: colorScheme.onSurface,
-                          ),
-                        ),
-                      ],
+                    return _buildPrayerRow(
+                      status: status,
+                      icon: icon,
+                      color: color,
+                      name: name,
+                      colorScheme: colorScheme,
+                      textTheme: textTheme,
                     );
                   },
                 ),
@@ -135,6 +145,93 @@ class PrayerStatusCard extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildProgressRing({
+    required BuildContext context,
+    required int completed,
+    required ColorScheme colorScheme,
+    required TextTheme textTheme,
+  }) {
+    const total = 5;
+    final progress = (completed / total).clamp(0.0, 1.0);
+
+    return TweenAnimationBuilder<double>(
+      tween: Tween<double>(end: progress),
+      duration: kProgressAnimDuration,
+      curve: kProgressCurve,
+      builder: (context, animatedProgress, child) {
+        return SizedBox(
+          width: 48,
+          height: 48,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              CircularProgressIndicator(
+                value: animatedProgress,
+                strokeWidth: 3,
+                backgroundColor: colorScheme.surfaceContainerHighest,
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  colorScheme.primary,
+                ),
+              ),
+              AnimatedSwitcher(
+                duration: kUiAnimDuration,
+                transitionBuilder: dashboardCardTransitionBuilder,
+                child: Text(
+                  '$completed/$total',
+                  key: ValueKey(completed),
+                  style: textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurface.withValues(alpha: 0.7),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildPrayerRow({
+    required PrayerStatus status,
+    required IconData icon,
+    required Color color,
+    required String name,
+    required ColorScheme colorScheme,
+    required TextTheme textTheme,
+  }) {
+    return AnimatedContainer(
+      duration: kUiAnimDuration,
+      curve: kUiCurve,
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          AnimatedSwitcher(
+            duration: kUiAnimDuration,
+            transitionBuilder: dashboardCardTransitionBuilder,
+            child: Icon(
+              icon,
+              key: ValueKey(status),
+              color: color,
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Text(
+            name,
+            style: textTheme.bodyMedium?.copyWith(
+              color: colorScheme.onSurface,
+            ),
+          ),
+        ],
       ),
     );
   }

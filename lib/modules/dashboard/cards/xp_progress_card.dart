@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/theme_extensions.dart';
+import 'dashboard_card_animations.dart';
 
 /// XP progress card - shows level placeholder and XP progress bars
 class XpProgressCard extends StatelessWidget {
@@ -45,12 +46,10 @@ class XpProgressCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              Text(
-                'Level 1',
-                style: textTheme.headlineSmall?.copyWith(
-                  color: colorScheme.onSurface,
-                  fontWeight: FontWeight.w500,
-                ),
+              _buildLevelDisplay(
+                level: (totalXp ~/ 1000) + 1,
+                colorScheme: colorScheme,
+                textTheme: textTheme,
               ),
               const SizedBox(height: 20),
               Expanded(
@@ -87,6 +86,41 @@ class XpProgressCard extends StatelessWidget {
     );
   }
 
+  Widget _buildLevelDisplay({
+    required int level,
+    required ColorScheme colorScheme,
+    required TextTheme textTheme,
+  }) {
+    return AnimatedSwitcher(
+      duration: kUiAnimDuration,
+      transitionBuilder: dashboardCardTransitionBuilder,
+      child: AnimatedContainer(
+        key: ValueKey(level),
+        duration: kUiAnimDuration,
+        curve: kUiCurve,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: colorScheme.primary.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [
+            BoxShadow(
+              color: colorScheme.primary.withValues(alpha: 0.2),
+              blurRadius: 8,
+              spreadRadius: 0,
+            ),
+          ],
+        ),
+        child: Text(
+          'Level $level',
+          style: textTheme.headlineSmall?.copyWith(
+            color: colorScheme.onSurface,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildXpBar({
     required BuildContext context,
     required String label,
@@ -110,10 +144,15 @@ class XpProgressCard extends StatelessWidget {
                 color: colorScheme.onSurface.withValues(alpha: 0.7),
               ),
             ),
-            Text(
-              '$value / $maxValue',
-              style: textTheme.bodySmall?.copyWith(
-                color: colorScheme.onSurface.withValues(alpha: 0.7),
+            AnimatedSwitcher(
+              duration: kUiAnimDuration,
+              transitionBuilder: dashboardCardTransitionBuilder,
+              child: Text(
+                '$value / $maxValue',
+                key: ValueKey(value),
+                style: textTheme.bodySmall?.copyWith(
+                  color: colorScheme.onSurface.withValues(alpha: 0.7),
+                ),
               ),
             ),
           ],
@@ -121,14 +160,51 @@ class XpProgressCard extends StatelessWidget {
         const SizedBox(height: 4),
         ClipRRect(
           borderRadius: BorderRadius.circular(4),
-          child: LinearProgressIndicator(
-            value: progress,
-            backgroundColor: colorScheme.surfaceContainerHighest,
-            valueColor: AlwaysStoppedAnimation<Color>(color),
-            minHeight: 8,
+          child: TweenAnimationBuilder<double>(
+            tween: Tween<double>(end: progress),
+            duration: kProgressAnimDuration,
+            curve: kProgressCurve,
+            builder: (context, animatedProgress, child) {
+              return _buildGradientProgressBar(
+                progress: animatedProgress,
+                color: color,
+                colorScheme: colorScheme,
+              );
+            },
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildGradientProgressBar({
+    required double progress,
+    required Color color,
+    required ColorScheme colorScheme,
+  }) {
+    return Container(
+      height: 8,
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: FractionallySizedBox(
+        alignment: Alignment.centerLeft,
+        widthFactor: progress,
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                color,
+                color.withValues(alpha: 0.8),
+              ],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+            borderRadius: BorderRadius.circular(4),
+          ),
+        ),
+      ),
     );
   }
 }
