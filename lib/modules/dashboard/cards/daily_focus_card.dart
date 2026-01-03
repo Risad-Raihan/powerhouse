@@ -28,9 +28,7 @@ class DailyFocusCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(tokens.radius),
       ),
       child: InkWell(
-        onTap: () {
-          // Placeholder for tap action
-        },
+        onTap: null,
         borderRadius: BorderRadius.circular(tokens.radius),
         child: Padding(
           padding: tokens.padding,

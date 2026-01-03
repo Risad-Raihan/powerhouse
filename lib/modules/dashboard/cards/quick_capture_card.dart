@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/converters/enum_converters.dart';
 import '../../../../core/theme/theme_extensions.dart';
+import '../../capture/capture_page.dart';
 
 /// Quick capture card - shows "+ Capture" button and recent capture previews
 class QuickCaptureCard extends StatelessWidget {
@@ -51,7 +52,9 @@ class QuickCaptureCard extends StatelessWidget {
       ),
       child: InkWell(
         onTap: () {
-          // Placeholder for tap action
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const CapturePage()),
+          );
         },
         borderRadius: BorderRadius.circular(tokens.radius),
         child: Padding(
@@ -70,7 +73,9 @@ class QuickCaptureCard extends StatelessWidget {
                 width: double.infinity,
                 child: OutlinedButton.icon(
                   onPressed: () {
-                    // Placeholder for tap action
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const CapturePage()),
+                    );
                   },
                   icon: const Icon(Icons.add),
                   label: const Text('Capture'),

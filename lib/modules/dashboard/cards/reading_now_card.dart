@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/theme/theme_extensions.dart';
+import '../../reading/reading_page.dart';
 import 'dashboard_card_animations.dart';
 
 /// Reading now card - shows current reading title and progress placeholder
@@ -31,7 +32,9 @@ class ReadingNowCard extends StatelessWidget {
       ),
       child: InkWell(
         onTap: () {
-          // Placeholder for tap action
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const ReadingPage()),
+          );
         },
         borderRadius: BorderRadius.circular(tokens.radius),
         child: Padding(

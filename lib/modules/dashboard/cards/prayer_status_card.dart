@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/converters/enum_converters.dart';
 import '../../../../core/theme/theme_extensions.dart';
+import '../../prayer/prayer_page.dart';
 import 'dashboard_card_animations.dart';
 
 /// Prayer status card - shows 5 prayer statuses (Fajr, Dhuhr, Asr, Maghrib, Isha)
@@ -93,7 +94,9 @@ class PrayerStatusCard extends StatelessWidget {
       ),
       child: InkWell(
         onTap: () {
-          // Placeholder for tap action
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const PrayerPage()),
+          );
         },
         borderRadius: BorderRadius.circular(tokens.radius),
         child: Padding(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/theme/theme_extensions.dart';
+import '../../insights/insights_page.dart';
 
 /// Insights card - shows first active insight or empty state
 class InsightsCard extends StatelessWidget {
@@ -30,7 +31,9 @@ class InsightsCard extends StatelessWidget {
       ),
       child: InkWell(
         onTap: () {
-          // Placeholder for tap action
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const InsightsPage()),
+          );
         },
         borderRadius: BorderRadius.circular(tokens.radius),
         child: Padding(

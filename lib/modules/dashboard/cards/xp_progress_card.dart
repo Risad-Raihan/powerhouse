@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/theme_extensions.dart';
+import '../../gamification/gamification_page.dart';
 import 'dashboard_card_animations.dart';
 
 /// XP progress card - shows level placeholder and XP progress bars
@@ -31,7 +32,9 @@ class XpProgressCard extends StatelessWidget {
       ),
       child: InkWell(
         onTap: () {
-          // Placeholder for tap action
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const GamificationPage()),
+          );
         },
         borderRadius: BorderRadius.circular(tokens.radius),
         child: Padding(
