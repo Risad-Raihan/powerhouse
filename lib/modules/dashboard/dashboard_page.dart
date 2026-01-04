@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dashboard_service.dart';
 import 'dashboard_models.dart';
 import 'dashboard_grid.dart';
+import '../reading/reading_repository.dart';
 
 /// Dashboard page - home screen of PowerHouse
 /// 
@@ -9,10 +10,12 @@ import 'dashboard_grid.dart';
 /// Handles loading, error, and data states.
 class DashboardPage extends StatelessWidget {
   final DashboardService service;
+  final ReadingRepository readingRepository;
 
   const DashboardPage({
     super.key,
     required this.service,
+    required this.readingRepository,
   });
 
   @override
@@ -45,7 +48,10 @@ class DashboardPage extends StatelessWidget {
             );
           }
 
-          return DashboardGrid(data: snapshot.data!);
+          return DashboardGrid(
+            data: snapshot.data!,
+            readingRepository: readingRepository,
+          );
         },
       ),
     );

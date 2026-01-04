@@ -7,6 +7,7 @@ import 'cards/reading_now_card.dart';
 import 'cards/xp_progress_card.dart';
 import 'cards/quick_capture_card.dart';
 import 'cards/insights_card.dart';
+import '../reading/reading_repository.dart';
 
 /// Dashboard grid - tablet-first responsive layout
 /// 
@@ -15,10 +16,12 @@ import 'cards/insights_card.dart';
 /// - Portrait tablet: adaptive 1-2 columns based on width threshold
 class DashboardGrid extends StatelessWidget {
   final DashboardData data;
+  final ReadingRepository readingRepository;
 
   const DashboardGrid({
     super.key,
     required this.data,
+    required this.readingRepository,
   });
 
   @override
@@ -58,6 +61,7 @@ class DashboardGrid extends StatelessWidget {
             ReadingNowCard(
               currentReading: data.currentReading,
               todayReadingSessions: data.todayReadingSessions,
+              readingRepository: readingRepository,
             ),
             XpProgressCard(
               todayXp: data.todayXp,

@@ -58,7 +58,10 @@ class _PowerHouseAppState extends State<PowerHouseApp> {
     return MaterialApp(
       title: 'PowerHouse',
       theme: PowerHouseTheme.lightTheme,
-      home: DashboardPage(service: _dashboardService),
+      home: DashboardPage(
+        service: _dashboardService,
+        readingRepository: _readingRepository,
+      ),
     );
   }
 }

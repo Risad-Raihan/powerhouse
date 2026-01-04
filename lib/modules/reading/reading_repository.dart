@@ -52,5 +52,33 @@ class ReadingRepository {
       ..orderBy([(s) => OrderingTerm.desc(s.createdAtUtc)]);
     return query.watch();
   }
+
+  /// Watch all non-archived reading items (reactive)
+  Stream<List<ReadingItem>> watchAllReadingItems() {
+    final query = _db.select(_db.readingItems)
+      ..where((r) => r.isArchived.equals(false))
+      ..orderBy([(r) => OrderingTerm.desc(r.addedAtUtc)]);
+    return query.watch();
+  }
+
+  /// Watch reading sessions within a date range (by localDate)
+  /// startDate and endDate are ISO YYYY-MM-DD strings
+  Stream<List<ReadingSession>> watchReadingSessionsInRange(
+    String startDate,
+    String endDate,
+  ) {
+    final query = _db.select(_db.readingSessions)
+      ..where((s) => s.localDate.isBiggerOrEqualValue(startDate))
+      ..where((s) => s.localDate.isSmallerOrEqualValue(endDate))
+      ..orderBy([(s) => OrderingTerm.desc(s.createdAtUtc)]);
+    return query.watch();
+  }
+
+  /// Watch all reading sessions (for computing per-item progress and last-read)
+  Stream<List<ReadingSession>> watchAllReadingSessions() {
+    final query = _db.select(_db.readingSessions)
+      ..orderBy([(s) => OrderingTerm.desc(s.createdAtUtc)]);
+    return query.watch();
+  }
 }
 
