@@ -603,6 +603,39 @@ class $ReadingItemsTable extends ReadingItems
     defaultValue: const Constant(false),
   );
   @override
+  late final GeneratedColumnWithTypeConverter<ReadingStatus, String> status =
+      GeneratedColumn<String>(
+        'status',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant('wantToRead'),
+      ).withConverter<ReadingStatus>($ReadingItemsTable.$converterstatus);
+  static const VerificationMeta _statusUpdatedAtUtcMeta =
+      const VerificationMeta('statusUpdatedAtUtc');
+  @override
+  late final GeneratedColumn<DateTime> statusUpdatedAtUtc =
+      GeneratedColumn<DateTime>(
+        'status_updated_at_utc',
+        aliasedName,
+        false,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _completedAtUtcMeta = const VerificationMeta(
+    'completedAtUtc',
+  );
+  @override
+  late final GeneratedColumn<DateTime> completedAtUtc =
+      GeneratedColumn<DateTime>(
+        'completed_at_utc',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
+  @override
   List<GeneratedColumn> get $columns => [
     id,
     title,
@@ -612,6 +645,9 @@ class $ReadingItemsTable extends ReadingItems
     coverImagePath,
     addedAtUtc,
     isArchived,
+    status,
+    statusUpdatedAtUtc,
+    completedAtUtc,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -674,6 +710,26 @@ class $ReadingItemsTable extends ReadingItems
         isArchived.isAcceptableOrUnknown(data['is_archived']!, _isArchivedMeta),
       );
     }
+    if (data.containsKey('status_updated_at_utc')) {
+      context.handle(
+        _statusUpdatedAtUtcMeta,
+        statusUpdatedAtUtc.isAcceptableOrUnknown(
+          data['status_updated_at_utc']!,
+          _statusUpdatedAtUtcMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_statusUpdatedAtUtcMeta);
+    }
+    if (data.containsKey('completed_at_utc')) {
+      context.handle(
+        _completedAtUtcMeta,
+        completedAtUtc.isAcceptableOrUnknown(
+          data['completed_at_utc']!,
+          _completedAtUtcMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -717,6 +773,20 @@ class $ReadingItemsTable extends ReadingItems
         DriftSqlType.bool,
         data['${effectivePrefix}is_archived'],
       )!,
+      status: $ReadingItemsTable.$converterstatus.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}status'],
+        )!,
+      ),
+      statusUpdatedAtUtc: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}status_updated_at_utc'],
+      )!,
+      completedAtUtc: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}completed_at_utc'],
+      ),
     );
   }
 
@@ -727,6 +797,8 @@ class $ReadingItemsTable extends ReadingItems
 
   static TypeConverter<ReadingType, String> $convertertype =
       readingTypeConverter;
+  static TypeConverter<ReadingStatus, String> $converterstatus =
+      readingStatusConverter;
 }
 
 class ReadingItem extends DataClass implements Insertable<ReadingItem> {
@@ -738,6 +810,9 @@ class ReadingItem extends DataClass implements Insertable<ReadingItem> {
   final String? coverImagePath;
   final DateTime addedAtUtc;
   final bool isArchived;
+  final ReadingStatus status;
+  final DateTime statusUpdatedAtUtc;
+  final DateTime? completedAtUtc;
   const ReadingItem({
     required this.id,
     required this.title,
@@ -747,6 +822,9 @@ class ReadingItem extends DataClass implements Insertable<ReadingItem> {
     this.coverImagePath,
     required this.addedAtUtc,
     required this.isArchived,
+    required this.status,
+    required this.statusUpdatedAtUtc,
+    this.completedAtUtc,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -769,6 +847,15 @@ class ReadingItem extends DataClass implements Insertable<ReadingItem> {
     }
     map['added_at_utc'] = Variable<DateTime>(addedAtUtc);
     map['is_archived'] = Variable<bool>(isArchived);
+    {
+      map['status'] = Variable<String>(
+        $ReadingItemsTable.$converterstatus.toSql(status),
+      );
+    }
+    map['status_updated_at_utc'] = Variable<DateTime>(statusUpdatedAtUtc);
+    if (!nullToAbsent || completedAtUtc != null) {
+      map['completed_at_utc'] = Variable<DateTime>(completedAtUtc);
+    }
     return map;
   }
 
@@ -788,6 +875,11 @@ class ReadingItem extends DataClass implements Insertable<ReadingItem> {
           : Value(coverImagePath),
       addedAtUtc: Value(addedAtUtc),
       isArchived: Value(isArchived),
+      status: Value(status),
+      statusUpdatedAtUtc: Value(statusUpdatedAtUtc),
+      completedAtUtc: completedAtUtc == null && nullToAbsent
+          ? const Value.absent()
+          : Value(completedAtUtc),
     );
   }
 
@@ -805,6 +897,11 @@ class ReadingItem extends DataClass implements Insertable<ReadingItem> {
       coverImagePath: serializer.fromJson<String?>(json['coverImagePath']),
       addedAtUtc: serializer.fromJson<DateTime>(json['addedAtUtc']),
       isArchived: serializer.fromJson<bool>(json['isArchived']),
+      status: serializer.fromJson<ReadingStatus>(json['status']),
+      statusUpdatedAtUtc: serializer.fromJson<DateTime>(
+        json['statusUpdatedAtUtc'],
+      ),
+      completedAtUtc: serializer.fromJson<DateTime?>(json['completedAtUtc']),
     );
   }
   @override
@@ -819,6 +916,9 @@ class ReadingItem extends DataClass implements Insertable<ReadingItem> {
       'coverImagePath': serializer.toJson<String?>(coverImagePath),
       'addedAtUtc': serializer.toJson<DateTime>(addedAtUtc),
       'isArchived': serializer.toJson<bool>(isArchived),
+      'status': serializer.toJson<ReadingStatus>(status),
+      'statusUpdatedAtUtc': serializer.toJson<DateTime>(statusUpdatedAtUtc),
+      'completedAtUtc': serializer.toJson<DateTime?>(completedAtUtc),
     };
   }
 
@@ -831,6 +931,9 @@ class ReadingItem extends DataClass implements Insertable<ReadingItem> {
     Value<String?> coverImagePath = const Value.absent(),
     DateTime? addedAtUtc,
     bool? isArchived,
+    ReadingStatus? status,
+    DateTime? statusUpdatedAtUtc,
+    Value<DateTime?> completedAtUtc = const Value.absent(),
   }) => ReadingItem(
     id: id ?? this.id,
     title: title ?? this.title,
@@ -842,6 +945,11 @@ class ReadingItem extends DataClass implements Insertable<ReadingItem> {
         : this.coverImagePath,
     addedAtUtc: addedAtUtc ?? this.addedAtUtc,
     isArchived: isArchived ?? this.isArchived,
+    status: status ?? this.status,
+    statusUpdatedAtUtc: statusUpdatedAtUtc ?? this.statusUpdatedAtUtc,
+    completedAtUtc: completedAtUtc.present
+        ? completedAtUtc.value
+        : this.completedAtUtc,
   );
   ReadingItem copyWithCompanion(ReadingItemsCompanion data) {
     return ReadingItem(
@@ -861,6 +969,13 @@ class ReadingItem extends DataClass implements Insertable<ReadingItem> {
       isArchived: data.isArchived.present
           ? data.isArchived.value
           : this.isArchived,
+      status: data.status.present ? data.status.value : this.status,
+      statusUpdatedAtUtc: data.statusUpdatedAtUtc.present
+          ? data.statusUpdatedAtUtc.value
+          : this.statusUpdatedAtUtc,
+      completedAtUtc: data.completedAtUtc.present
+          ? data.completedAtUtc.value
+          : this.completedAtUtc,
     );
   }
 
@@ -874,7 +989,10 @@ class ReadingItem extends DataClass implements Insertable<ReadingItem> {
           ..write('totalUnits: $totalUnits, ')
           ..write('coverImagePath: $coverImagePath, ')
           ..write('addedAtUtc: $addedAtUtc, ')
-          ..write('isArchived: $isArchived')
+          ..write('isArchived: $isArchived, ')
+          ..write('status: $status, ')
+          ..write('statusUpdatedAtUtc: $statusUpdatedAtUtc, ')
+          ..write('completedAtUtc: $completedAtUtc')
           ..write(')'))
         .toString();
   }
@@ -889,6 +1007,9 @@ class ReadingItem extends DataClass implements Insertable<ReadingItem> {
     coverImagePath,
     addedAtUtc,
     isArchived,
+    status,
+    statusUpdatedAtUtc,
+    completedAtUtc,
   );
   @override
   bool operator ==(Object other) =>
@@ -901,7 +1022,10 @@ class ReadingItem extends DataClass implements Insertable<ReadingItem> {
           other.totalUnits == this.totalUnits &&
           other.coverImagePath == this.coverImagePath &&
           other.addedAtUtc == this.addedAtUtc &&
-          other.isArchived == this.isArchived);
+          other.isArchived == this.isArchived &&
+          other.status == this.status &&
+          other.statusUpdatedAtUtc == this.statusUpdatedAtUtc &&
+          other.completedAtUtc == this.completedAtUtc);
 }
 
 class ReadingItemsCompanion extends UpdateCompanion<ReadingItem> {
@@ -913,6 +1037,9 @@ class ReadingItemsCompanion extends UpdateCompanion<ReadingItem> {
   final Value<String?> coverImagePath;
   final Value<DateTime> addedAtUtc;
   final Value<bool> isArchived;
+  final Value<ReadingStatus> status;
+  final Value<DateTime> statusUpdatedAtUtc;
+  final Value<DateTime?> completedAtUtc;
   const ReadingItemsCompanion({
     this.id = const Value.absent(),
     this.title = const Value.absent(),
@@ -922,6 +1049,9 @@ class ReadingItemsCompanion extends UpdateCompanion<ReadingItem> {
     this.coverImagePath = const Value.absent(),
     this.addedAtUtc = const Value.absent(),
     this.isArchived = const Value.absent(),
+    this.status = const Value.absent(),
+    this.statusUpdatedAtUtc = const Value.absent(),
+    this.completedAtUtc = const Value.absent(),
   });
   ReadingItemsCompanion.insert({
     this.id = const Value.absent(),
@@ -932,9 +1062,13 @@ class ReadingItemsCompanion extends UpdateCompanion<ReadingItem> {
     this.coverImagePath = const Value.absent(),
     required DateTime addedAtUtc,
     this.isArchived = const Value.absent(),
+    this.status = const Value.absent(),
+    required DateTime statusUpdatedAtUtc,
+    this.completedAtUtc = const Value.absent(),
   }) : title = Value(title),
        type = Value(type),
-       addedAtUtc = Value(addedAtUtc);
+       addedAtUtc = Value(addedAtUtc),
+       statusUpdatedAtUtc = Value(statusUpdatedAtUtc);
   static Insertable<ReadingItem> custom({
     Expression<int>? id,
     Expression<String>? title,
@@ -944,6 +1078,9 @@ class ReadingItemsCompanion extends UpdateCompanion<ReadingItem> {
     Expression<String>? coverImagePath,
     Expression<DateTime>? addedAtUtc,
     Expression<bool>? isArchived,
+    Expression<String>? status,
+    Expression<DateTime>? statusUpdatedAtUtc,
+    Expression<DateTime>? completedAtUtc,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -954,6 +1091,10 @@ class ReadingItemsCompanion extends UpdateCompanion<ReadingItem> {
       if (coverImagePath != null) 'cover_image_path': coverImagePath,
       if (addedAtUtc != null) 'added_at_utc': addedAtUtc,
       if (isArchived != null) 'is_archived': isArchived,
+      if (status != null) 'status': status,
+      if (statusUpdatedAtUtc != null)
+        'status_updated_at_utc': statusUpdatedAtUtc,
+      if (completedAtUtc != null) 'completed_at_utc': completedAtUtc,
     });
   }
 
@@ -966,6 +1107,9 @@ class ReadingItemsCompanion extends UpdateCompanion<ReadingItem> {
     Value<String?>? coverImagePath,
     Value<DateTime>? addedAtUtc,
     Value<bool>? isArchived,
+    Value<ReadingStatus>? status,
+    Value<DateTime>? statusUpdatedAtUtc,
+    Value<DateTime?>? completedAtUtc,
   }) {
     return ReadingItemsCompanion(
       id: id ?? this.id,
@@ -976,6 +1120,9 @@ class ReadingItemsCompanion extends UpdateCompanion<ReadingItem> {
       coverImagePath: coverImagePath ?? this.coverImagePath,
       addedAtUtc: addedAtUtc ?? this.addedAtUtc,
       isArchived: isArchived ?? this.isArchived,
+      status: status ?? this.status,
+      statusUpdatedAtUtc: statusUpdatedAtUtc ?? this.statusUpdatedAtUtc,
+      completedAtUtc: completedAtUtc ?? this.completedAtUtc,
     );
   }
 
@@ -1008,6 +1155,19 @@ class ReadingItemsCompanion extends UpdateCompanion<ReadingItem> {
     if (isArchived.present) {
       map['is_archived'] = Variable<bool>(isArchived.value);
     }
+    if (status.present) {
+      map['status'] = Variable<String>(
+        $ReadingItemsTable.$converterstatus.toSql(status.value),
+      );
+    }
+    if (statusUpdatedAtUtc.present) {
+      map['status_updated_at_utc'] = Variable<DateTime>(
+        statusUpdatedAtUtc.value,
+      );
+    }
+    if (completedAtUtc.present) {
+      map['completed_at_utc'] = Variable<DateTime>(completedAtUtc.value);
+    }
     return map;
   }
 
@@ -1021,7 +1181,10 @@ class ReadingItemsCompanion extends UpdateCompanion<ReadingItem> {
           ..write('totalUnits: $totalUnits, ')
           ..write('coverImagePath: $coverImagePath, ')
           ..write('addedAtUtc: $addedAtUtc, ')
-          ..write('isArchived: $isArchived')
+          ..write('isArchived: $isArchived, ')
+          ..write('status: $status, ')
+          ..write('statusUpdatedAtUtc: $statusUpdatedAtUtc, ')
+          ..write('completedAtUtc: $completedAtUtc')
           ..write(')'))
         .toString();
   }
@@ -3020,6 +3183,9 @@ typedef $$ReadingItemsTableCreateCompanionBuilder =
       Value<String?> coverImagePath,
       required DateTime addedAtUtc,
       Value<bool> isArchived,
+      Value<ReadingStatus> status,
+      required DateTime statusUpdatedAtUtc,
+      Value<DateTime?> completedAtUtc,
     });
 typedef $$ReadingItemsTableUpdateCompanionBuilder =
     ReadingItemsCompanion Function({
@@ -3031,6 +3197,9 @@ typedef $$ReadingItemsTableUpdateCompanionBuilder =
       Value<String?> coverImagePath,
       Value<DateTime> addedAtUtc,
       Value<bool> isArchived,
+      Value<ReadingStatus> status,
+      Value<DateTime> statusUpdatedAtUtc,
+      Value<DateTime?> completedAtUtc,
     });
 
 class $$ReadingItemsTableFilterComposer
@@ -3080,6 +3249,22 @@ class $$ReadingItemsTableFilterComposer
 
   ColumnFilters<bool> get isArchived => $composableBuilder(
     column: $table.isArchived,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<ReadingStatus, ReadingStatus, String>
+  get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<DateTime> get statusUpdatedAtUtc => $composableBuilder(
+    column: $table.statusUpdatedAtUtc,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get completedAtUtc => $composableBuilder(
+    column: $table.completedAtUtc,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -3132,6 +3317,21 @@ class $$ReadingItemsTableOrderingComposer
     column: $table.isArchived,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get statusUpdatedAtUtc => $composableBuilder(
+    column: $table.statusUpdatedAtUtc,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get completedAtUtc => $composableBuilder(
+    column: $table.completedAtUtc,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ReadingItemsTableAnnotationComposer
@@ -3172,6 +3372,19 @@ class $$ReadingItemsTableAnnotationComposer
 
   GeneratedColumn<bool> get isArchived => $composableBuilder(
     column: $table.isArchived,
+    builder: (column) => column,
+  );
+
+  GeneratedColumnWithTypeConverter<ReadingStatus, String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get statusUpdatedAtUtc => $composableBuilder(
+    column: $table.statusUpdatedAtUtc,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get completedAtUtc => $composableBuilder(
+    column: $table.completedAtUtc,
     builder: (column) => column,
   );
 }
@@ -3215,6 +3428,9 @@ class $$ReadingItemsTableTableManager
                 Value<String?> coverImagePath = const Value.absent(),
                 Value<DateTime> addedAtUtc = const Value.absent(),
                 Value<bool> isArchived = const Value.absent(),
+                Value<ReadingStatus> status = const Value.absent(),
+                Value<DateTime> statusUpdatedAtUtc = const Value.absent(),
+                Value<DateTime?> completedAtUtc = const Value.absent(),
               }) => ReadingItemsCompanion(
                 id: id,
                 title: title,
@@ -3224,6 +3440,9 @@ class $$ReadingItemsTableTableManager
                 coverImagePath: coverImagePath,
                 addedAtUtc: addedAtUtc,
                 isArchived: isArchived,
+                status: status,
+                statusUpdatedAtUtc: statusUpdatedAtUtc,
+                completedAtUtc: completedAtUtc,
               ),
           createCompanionCallback:
               ({
@@ -3235,6 +3454,9 @@ class $$ReadingItemsTableTableManager
                 Value<String?> coverImagePath = const Value.absent(),
                 required DateTime addedAtUtc,
                 Value<bool> isArchived = const Value.absent(),
+                Value<ReadingStatus> status = const Value.absent(),
+                required DateTime statusUpdatedAtUtc,
+                Value<DateTime?> completedAtUtc = const Value.absent(),
               }) => ReadingItemsCompanion.insert(
                 id: id,
                 title: title,
@@ -3244,6 +3466,9 @@ class $$ReadingItemsTableTableManager
                 coverImagePath: coverImagePath,
                 addedAtUtc: addedAtUtc,
                 isArchived: isArchived,
+                status: status,
+                statusUpdatedAtUtc: statusUpdatedAtUtc,
+                completedAtUtc: completedAtUtc,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

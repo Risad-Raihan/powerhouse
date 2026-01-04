@@ -49,6 +49,9 @@ dependencies:
   
   # Reactive extensions for stream composition
   rxdart: ^0.28.0
+  
+  # HTTP client for Google Books API
+  http: ^1.2.0
 
 dev_dependencies:
   flutter_test:

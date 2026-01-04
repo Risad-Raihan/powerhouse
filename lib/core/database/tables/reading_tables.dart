@@ -26,6 +26,15 @@ class ReadingItems extends Table {
   
   // Whether the item is archived
   BoolColumn get isArchived => boolean().withDefault(const Constant(false))();
+  
+  // Reading status (wantToRead, currentlyReading, done)
+  TextColumn get status => text().map(readingStatusConverter).withDefault(const Constant('wantToRead'))();
+  
+  // UTC timestamp when status was last updated
+  DateTimeColumn get statusUpdatedAtUtc => dateTime()();
+  
+  // UTC timestamp when item was marked as done (nullable, set only when status becomes done)
+  DateTimeColumn get completedAtUtc => dateTime().nullable()();
 }
 
 /// Reading sessions table

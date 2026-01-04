@@ -29,7 +29,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration {
@@ -38,7 +38,24 @@ class AppDatabase extends _$AppDatabase {
         await m.createAll();
       },
       onUpgrade: (Migrator m, int from, int to) async {
-        // Future migrations will go here
+        if (from < 2) {
+          // Migration from v1 to v2: Add reading status fields
+          await m.addColumn(readingItems, readingItems.status);
+          await m.addColumn(readingItems, readingItems.statusUpdatedAtUtc);
+          await m.addColumn(readingItems, readingItems.completedAtUtc);
+          
+          // Backfill existing rows: set status = wantToRead and statusUpdatedAtUtc = addedAtUtc
+          // Query existing items and update them individually to avoid SQLite column reference issues
+          final existingItems = await (select(readingItems)..where((r) => r.statusUpdatedAtUtc.isNull())).get();
+          for (final item in existingItems) {
+            await (update(readingItems)..where((r) => r.id.equals(item.id))).write(
+              ReadingItemsCompanion(
+                status: const Value(ReadingStatus.wantToRead),
+                statusUpdatedAtUtc: Value(item.addedAtUtc),
+              ),
+            );
+          }
+        }
       },
     );
   }

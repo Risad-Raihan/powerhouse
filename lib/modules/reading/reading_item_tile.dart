@@ -47,13 +47,21 @@ class ReadingItemTile extends StatelessWidget {
                   child: model.item.coverImagePath != null
                       ? ClipRRect(
                           borderRadius: BorderRadius.circular(8),
-                          child: Image.asset(
-                            model.item.coverImagePath!,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return _buildPlaceholderIcon(context, colorScheme);
-                            },
-                          ),
+                          child: model.item.coverImagePath!.startsWith('http')
+                              ? Image.network(
+                                  model.item.coverImagePath!,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return _buildPlaceholderIcon(context, colorScheme);
+                                  },
+                                )
+                              : Image.asset(
+                                  model.item.coverImagePath!,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return _buildPlaceholderIcon(context, colorScheme);
+                                  },
+                                ),
                         )
                       : _buildPlaceholderIcon(context, colorScheme),
                 ),
