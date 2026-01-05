@@ -8,6 +8,7 @@ import 'cards/xp_progress_card.dart';
 import 'cards/quick_capture_card.dart';
 import 'cards/insights_card.dart';
 import '../reading/reading_repository.dart';
+import '../prayer/prayer_repository.dart';
 
 /// Dashboard grid - tablet-first responsive layout
 /// 
@@ -17,11 +18,13 @@ import '../reading/reading_repository.dart';
 class DashboardGrid extends StatelessWidget {
   final DashboardData data;
   final ReadingRepository readingRepository;
+  final PrayerRepository prayerRepository;
 
   const DashboardGrid({
     super.key,
     required this.data,
     required this.readingRepository,
+    required this.prayerRepository,
   });
 
   @override
@@ -57,7 +60,10 @@ class DashboardGrid extends StatelessWidget {
           ),
           children: [
             DailyFocusCard(localDate: data.localDate),
-            PrayerStatusCard(todaysPrayers: data.todaysPrayers),
+            PrayerStatusCard(
+              todaysPrayers: data.todaysPrayers,
+              prayerRepository: prayerRepository,
+            ),
             ReadingNowCard(
               currentReading: data.currentReading,
               todayReadingSessions: data.todayReadingSessions,

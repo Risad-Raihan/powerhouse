@@ -3,6 +3,7 @@ import 'dashboard_service.dart';
 import 'dashboard_models.dart';
 import 'dashboard_grid.dart';
 import '../reading/reading_repository.dart';
+import '../prayer/prayer_repository.dart';
 
 /// Dashboard page - home screen of PowerHouse
 /// 
@@ -11,11 +12,13 @@ import '../reading/reading_repository.dart';
 class DashboardPage extends StatelessWidget {
   final DashboardService service;
   final ReadingRepository readingRepository;
+  final PrayerRepository prayerRepository;
 
   const DashboardPage({
     super.key,
     required this.service,
     required this.readingRepository,
+    required this.prayerRepository,
   });
 
   @override
@@ -51,6 +54,7 @@ class DashboardPage extends StatelessWidget {
           return DashboardGrid(
             data: snapshot.data!,
             readingRepository: readingRepository,
+            prayerRepository: prayerRepository,
           );
         },
       ),

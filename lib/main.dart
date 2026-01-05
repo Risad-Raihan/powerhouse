@@ -61,6 +61,7 @@ class _PowerHouseAppState extends State<PowerHouseApp> {
       home: DashboardPage(
         service: _dashboardService,
         readingRepository: _readingRepository,
+        prayerRepository: _prayerRepository,
       ),
     );
   }

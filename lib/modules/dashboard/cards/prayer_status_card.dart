@@ -3,15 +3,18 @@ import '../../../../core/database/app_database.dart';
 import '../../../../core/database/converters/enum_converters.dart';
 import '../../../../core/theme/theme_extensions.dart';
 import '../../prayer/prayer_page.dart';
+import '../../prayer/prayer_repository.dart';
 import 'dashboard_card_animations.dart';
 
 /// Prayer status card - shows 5 prayer statuses (Fajr, Dhuhr, Asr, Maghrib, Isha)
 class PrayerStatusCard extends StatelessWidget {
   final List<PrayerEntry> todaysPrayers;
+  final PrayerRepository prayerRepository;
 
   const PrayerStatusCard({
     super.key,
     required this.todaysPrayers,
+    required this.prayerRepository,
   });
 
   PrayerEntry? _findPrayer(List<PrayerEntry> prayers, PrayerType type) {
@@ -95,7 +98,9 @@ class PrayerStatusCard extends StatelessWidget {
       child: InkWell(
         onTap: () {
           Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const PrayerPage()),
+            MaterialPageRoute(
+              builder: (_) => PrayerPage(repository: prayerRepository),
+            ),
           );
         },
         borderRadius: BorderRadius.circular(tokens.radius),

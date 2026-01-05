@@ -85,5 +85,25 @@ class PowerHouseColors {
   /// Error color - muted red, not aggressive or shaming
   /// Used for: errors that need attention, but without guilt UX
   static const Color error = Color(0xFFE57373);
+
+  // ============================================================================
+  // PRAYER GREEN PALETTE (Layered ambient greens)
+  // ============================================================================
+
+  /// Prayer green - deep, spiritual green for completed prayers
+  /// Used for: completed prayer states, active prayer windows
+  static const Color prayerGreenDeep = Color(0xFF4CAF50);
+
+  /// Prayer green - medium, calm green for partial completion
+  /// Used for: partial prayer completion, calendar partial days
+  static const Color prayerGreenMedium = Color(0xFF81C784);
+
+  /// Prayer green - light, ambient green for backgrounds
+  /// Used for: prayer card backgrounds, subtle highlights
+  static const Color prayerGreenLight = Color(0xFFC8E6C9);
+
+  /// Prayer green - very light, ambient green for empty states
+  /// Used for: calendar empty days, muted prayer states
+  static const Color prayerGreenMuted = Color(0xFFE8F5E9);
 }
 
